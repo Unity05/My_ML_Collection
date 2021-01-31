@@ -5,7 +5,7 @@ from scipy.stats import multivariate_normal
 
 class GDA:
     def __init__(self, samples: pd.DataFrame):
-        self.samples_len = len(samples.index)
+        self.samples_len = len(samples)
         self.phi = (samples.loc[samples['labels'] == 1].sum().loc['labels'] / self.samples_len)
         samples_label_grouped = samples.groupby('labels')
         samples_vectors_0 = samples_label_grouped.get_group(0).loc[:, ['samples_vectors']]
