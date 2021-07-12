@@ -17,8 +17,9 @@ class GDA:
     def calculate_covariance_matrix(self, samples_vectors_0: np.array, samples_vectors_1: np.array):
         adjusted_samples_vector_0 = np.subtract(np.concatenate(samples_vectors_0, axis=0), self.means[0])
         adjusted_samples_vector_1 = np.subtract(np.concatenate(samples_vectors_1, axis=0), self.means[1])
-        return (1/self.samples_len) * (np.matmul(adjusted_samples_vector_0.transpose(), adjusted_samples_vector_0) +
-                                       np.matmul(adjusted_samples_vector_1.transpose(), adjusted_samples_vector_1))
+        return (1/(self.samples_len * 2)) * \
+               (np.matmul(adjusted_samples_vector_0.transpose(), adjusted_samples_vector_0) +
+                np.matmul(adjusted_samples_vector_1.transpose(), adjusted_samples_vector_1))
 
     def get_class(self, input_vector: np.array, allow_singular=False):
         return np.argmax([
