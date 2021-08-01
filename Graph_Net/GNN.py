@@ -13,9 +13,10 @@ class GNN(nn.Module):
         self.adjacency_matrix = None
 
     def forward(self, x: tuple):
-        self.adjacency_matrix, graph = x    # adjust adjacency matrix to batch usage
+        self.adjacency_matrix, graph = x
         # embed matrix of shape [Depth; N; #Nodes; embed_dim]
         self.h = torch.empty((self.depth, graph.size()[0], graph.size()[1], graph.size()[2]))
+        print(self.h.shape)
         self.h[0] = graph
         self.calculate_embedding(remaining_its=(self.depth - 1))
 
@@ -24,6 +25,7 @@ class GNN(nn.Module):
             self.calculate_embedding(remaining_its=(remaining_its - 1))
             self.h[remaining_its] = self.layers[remaining_its](self.h[remaining_its - 1],
                                                                self.adjacency_matrix.transpose(1, 2))
+            # transposing the adjacency matrix should not matter as we now are only interested in undirected graphs.
 
 
 class GNNLayer(nn.Module):
@@ -62,6 +64,9 @@ class LinearWithMask(nn.Module):
             nn.init.uniform_(self.bias, -bound, bound)
 
     def forward(self, input: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
-        input = input.repeat(mask.size()[1], 1, 1) * mask.permute(1, 2, 0)  # dropout the masked data
-        output = input @ self.weight.t() + (self.bias * mask.permute(1, 2, 0))  # dropout respective bias data
+        mask.unsqueeze_(-1)
+        # input = input.repeat(mask.size()[1], 1, 1) * mask.permute(1, 2, 0)  # dropout the masked data
+        input = input.repeat(mask.size()[1], 1, 1) * mask
+        # output = input @ self.weight.t() + (self.bias * mask.permute(1, 2, 0))  # dropout respective bias data
+        output = input @ self.weight.t() + (self.bias * mask)
         return output
