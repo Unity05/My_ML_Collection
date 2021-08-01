@@ -5,22 +5,43 @@ import torch.nn as nn
 
 
 class GNN(nn.Module):
+    """
+    Simple example GNN with a few GNN Layers stacked sequentially.
+    No attention, residual connections, etc.
+    """
+
     def __init__(self, depth: int, embed_dim: int, activation: str = 'ReLU'):
+        """
+        :param depth: Number of hops that should be included in a node embedding. Equivalent to number of GNN Layers.
+        :param embed_dim: Node embedding dimension.
+        :param activation: Activation function. Default: ReLU.
+        """
+
         super(GNN, self).__init__()
         self.depth = depth
         self.layers = [GNNLayer(in_dim=embed_dim, out_dim=embed_dim, activation=activation) for _ in range(depth)]
         self.h = None
         self.adjacency_matrix = None
 
-    def forward(self, x: tuple):
-        self.adjacency_matrix, graph = x
+    def forward(self, adjacency_matrix: torch.Tensor, graph: torch.Tensor):
+        """
+        :param adjacency_matrix: Adjacency matrix of graph.
+        :param graph: Initial embeddings of nodes of graph.
+        """
+
+        self.adjacency_matrix = adjacency_matrix
         # embed matrix of shape [Depth; N; #Nodes; embed_dim]
         self.h = torch.empty((self.depth, graph.size()[0], graph.size()[1], graph.size()[2]))
-        print(self.h.shape)
         self.h[0] = graph
         self.calculate_embedding(remaining_its=(self.depth - 1))
 
     def calculate_embedding(self, remaining_its: int):
+        """
+        Computes next step node embeddings.
+
+        :param remaining_its: Number of steps left to compute.
+        """
+
         if remaining_its != 0:
             self.calculate_embedding(remaining_its=(remaining_its - 1))
             self.h[remaining_its] = self.layers[remaining_its](self.h[remaining_its - 1],
@@ -29,18 +50,48 @@ class GNN(nn.Module):
 
 
 class GNNLayer(nn.Module):
+    """
+    GNN Layer.
+    """
+
     def __init__(self, in_dim: int, out_dim: int, activation: str = 'ReLU'):
+        """
+        :param in_dim: Input embedding dimension.
+        :param out_dim: Output embedding dimension.
+        :param activation: Activation function. Default: ReLU.
+        """
+
         super(GNNLayer, self).__init__()
         self.message_layer = LinearWithMask(in_features=in_dim, out_features=out_dim)
         self.activation_fn = getattr(nn, activation)()
 
     def forward(self, x, mask):
+        """
+        :param x: Previous embeddings.
+        :param mask: Embedding / node mask.
+        :return: New calculated embeddings.
+        """
+
         return self.activation_fn((torch.div(1.0, mask.sum(-1))) * torch.sum(self.message_layer(x, mask), dim=1))
 
 
 class LinearWithMask(nn.Module):
+    """
+    Linear Layer where only non - masked input data is used for linear transformation.
+    This is especially / primarily designed for GNN usage
+    """
+
     def __init__(self, in_features: int, out_features: int, bias: bool = True, device=None, dtype=None) -> None:
-        # simialar to https://pytorch.org/docs/stable/_modules/torch/nn/modules/linear.html#Linear
+        """
+        Simialar to https://pytorch.org/docs/stable/_modules/torch/nn/modules/linear.html#Linear.
+
+        :param in_features: size of each input sample (see pytorch)
+        :param out_features: size of each output sample (see pytorch)
+        :param bias: If set to ``False``, the layer will not learn an additive bias. Default: ``True``. (see pytorch)
+        :param device: Specific device to run operations on. Default: None.
+        :param dtype: Specific dtype. Default: None.
+        """
+
         factory_kwargs = {'device': device, 'dtype': dtype}
         super(LinearWithMask, self).__init__()
         self.in_features = in_features
@@ -57,6 +108,7 @@ class LinearWithMask(nn.Module):
         Same as in https://pytorch.org/docs/stable/_modules/torch/nn/modules/linear.html#Linear.
         :return:
         """
+
         nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
         if self.bias is not None:
             fan_in, _ = nn.init._calculate_fan_in_and_fan_out(self.weight)
@@ -64,9 +116,14 @@ class LinearWithMask(nn.Module):
             nn.init.uniform_(self.bias, -bound, bound)
 
     def forward(self, input: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """
+        :param input: (N, *, H_in) where * means in GNN context #Nodes and H_in = in_features.
+        :param mask: (N, *, *) where * means in GNN context #Nodes
+                     and masks all nodes that should not be used for each node.
+        :return: (N, *, *, H_out) where * means in GNN context #Nodes and H_out = out_features.
+        """
+
         mask.unsqueeze_(-1)
-        # input = input.repeat(mask.size()[1], 1, 1) * mask.permute(1, 2, 0)  # dropout the masked data
-        input = input.repeat(mask.size()[1], 1, 1) * mask
-        # output = input @ self.weight.t() + (self.bias * mask.permute(1, 2, 0))  # dropout respective bias data
-        output = input @ self.weight.t() + (self.bias * mask)
+        input = input.repeat(mask.size()[1], 1, 1) * mask  # dropout the masked data
+        output = input @ self.weight.t() + (self.bias * mask)  # dropout respective bias data
         return output
