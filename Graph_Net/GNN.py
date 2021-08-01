@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import math
 
 import torch
@@ -127,3 +128,56 @@ class LinearWithMask(nn.Module):
         input = input.repeat(mask.size()[1], 1, 1) * mask  # dropout the masked data
         output = input @ self.weight.t() + (self.bias * mask)  # dropout respective bias data
         return output
+
+
+class Attention(nn.Module, ABC):
+    """
+    Abstract Attention class.
+    Using template design pattern.
+    """
+
+    @abstractmethod
+    def calculate_attention_coefficient(self, embeddings: torch.Tensor) -> torch.Tensor:
+        """
+        Calculates attention coefficients for every embedding pair.
+
+        :param embeddings: Embedding tensor of shape (N, #Embeds, embed_dim).
+        :return: Tensor of shape (N, #Embeds, #Embeds, 1) containing all attention coefficients.
+        """
+        pass
+
+    def calculate_attention_weight(self, embeddings: torch.Tensor) -> torch.Tensor:
+        """
+        Calculates attention weights for every embedding pair.
+
+        :param embeddings: Embedding tensor of shape (N, #Embeds, embed_dim).
+        :return: Tensor of shape (N, #Embeds, #Embeds, 1) containing all attention weights.
+        """
+
+        return torch.softmax(self.calculate_attention_coefficient(embeddings=embeddings), dim=2)
+
+
+class LinearAttention(Attention):
+    """
+    Attention Layer using Linear Layer to compute attention coefficients.
+    """
+
+    def __init__(self, embed_dim: int) -> None:
+        """
+        :param embed_dim: Embedding dimension.
+        """
+
+        super(Attention, self).__init__()
+        self.linear_layer = nn.Linear(in_features=(2 * embed_dim), out_features=1)
+
+    def calculate_attention_coefficient(self, embeddings: torch.Tensor) -> torch.Tensor:
+        """
+        Calculates attention coefficients for every embedding pair.
+        The embeddings are first concatenated and then transformed by a linear layer.
+
+        :param embeddings: Embedding tensor of shape (N, #Embeds, embed_dim).
+        :return: Tensor of shape (N, #Embeds, #Embeds, 1) containing all attention coefficients.
+        """
+
+        embeddings = torch.stack(([embeddings] * embeddings.shape[1]), dim=1)   # (N, #Embeds, #Embeds, embed_dim)
+        return self.linear_layer(torch.cat((embeddings, embeddings.transpose(1, 2)), dim=-1))
