@@ -69,16 +69,16 @@ class DegreeGraphCreator(RandomGraphCreator):
 
         :return: the random graph.
         """
+
         adjacency_matrix = np.zeros(shape=(self.n, self.n))
         degree_array = np.array(self.degree_sequence)
         nodes = range(self.n)
         edges = set()
 
-        def decrement(i):
-            degree_array[i] -= 1
-
-        [[(edges.update([(i, j), (j, i)]), decrement(j))
-          for j in rnd.choices(population=nodes, weights=(degree_array > 0))] for i in nodes]
+        for i in nodes:
+            for j in rnd.choices(population=nodes, weights=(degree_array > 0)):
+                edges.update([(i, j), (j, i)])
+                degree_array[i] -= 1
 
         edges = set(edges)
         adjacency_matrix[list(map(list, zip(*edges)))] = 1
