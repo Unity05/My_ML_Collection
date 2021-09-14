@@ -1,6 +1,6 @@
 import numpy as np
 
-from .RandomWalks import RandomWalk
+from Graph_Net.RandomWalks import RandomWalk
 from Random_Stuff.Activations import sigmoid
 
 
