@@ -8,7 +8,7 @@ class RandomGraphCreator(ABC):
     Creator class for random graphs.
     """
 
-    def create_graph(self) -> np.array:
+    def create_graph(self, **kwargs) -> np.array:
         """
         Creates a random graph.
 
@@ -16,14 +16,14 @@ class RandomGraphCreator(ABC):
         """
 
         # Simply return adjacency matrix for now.
-        return self.graph_factorymethod()
+        return self.graph_factorymethod(**kwargs)
 
     @abstractmethod
-    def graph_factorymethod(self) -> np.array:
+    def graph_factorymethod(self, **kwargs) -> np.array:
         pass
 
 
-class ERGraphCreator(RandomGraphCreator):
+class ERGraph(RandomGraphCreator):
     """
     Creator class for Erdős–Rényi random graphs.
     """
@@ -50,7 +50,7 @@ class ERGraphCreator(RandomGraphCreator):
         return tri + np.transpose(tri)
 
 
-class DegreeGraphCreator(RandomGraphCreator):
+class DegreeGraph(RandomGraphCreator):
     """
     Creator class for node degree based random graphs.
     """
@@ -84,3 +84,27 @@ class DegreeGraphCreator(RandomGraphCreator):
         adjacency_matrix[list(map(list, zip(*edges)))] = 1
 
         return adjacency_matrix
+
+
+class CommunityAffiliationGraph(RandomGraphCreator):
+    """
+    Creator class for node community affiliation based random graphs.
+    """
+
+    def graph_factorymethod(self, **kwargs):
+        """
+        Generates a random undirected graph with specified communities.
+
+        :param kwargs: should contain:
+                                community_lookup: A (0/1) - tensor of shape (#nodes, #communities).
+                                                  1 if the node belongs to the community, 0 otherwise.
+                                community_p: A tensor of shape (#communities) containing for every community
+                                             the probability that two nodes in a community are connected.
+        :return: An adjacency matrix containing the edge probabilities.
+        """
+
+        edge_probs = np.einsum('ij,kj,j->ikj', kwargs['community_lookup'],
+                               kwargs['community_lookup'], (1 - kwargs['community_p']))
+        edge_probs = 1 - np.prod(edge_probs, axis=-1, where=(edge_probs != 0), initial=1.0)
+
+        return edge_probs
