@@ -1,4 +1,7 @@
 import numpy as np
+import torch
+import torch.nn as nn
+import itertools
 
 from Graph_Net.RandomWalks import RandomWalk
 from Random_Stuff.Activations import sigmoid
@@ -41,3 +44,36 @@ class RandomWalkNeighbourLoss:
                 np.arange(self.num_nodes),
                 p=self.node_p_distribution
             )))
+
+
+class GraphLogLikelihood(nn.Module):
+    """
+    LogLikelihood log(P(G|F)) that a given community membership table F generates the ground truth graph G.
+    """
+
+    def __init__(self, edge_index: torch.Tensor, n_nodes: int):
+        """
+        :param edge_index: A tensor that contains the edges / defines the graph structure.
+        :param n_nodes: Number of nodes in the graph.
+        """
+
+        super(GraphLogLikelihood, self).__init__()
+        self.edge_index = edge_index
+        non_edge_list = list(itertools.combinations(range(n_nodes), r=2))
+        for edge in edge_index.t().tolist():
+            non_edge_list.remove(edge)
+        self.non_edge_index = torch.tensor(non_edge_list).t()
+
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
+        """
+        Computes the log likelihood log(P(G|F)).
+
+        :param input: A tensor representing the community membership table F of shape (#nodes, #communities).
+        :return: scalar.
+        """
+
+        loss = torch.sum(torch.log(1 - torch.exp((-1) * torch.einsum('ij,ij->i',
+                                                                     input[self.edge_index[0]],
+                                                                     input[self.edge_index[1]])))) \
+               - torch.sum(torch.einsum('ij,ij->i', input[self.non_edge_index[0]], input[self.non_edge_index[1]]))
+        return loss
