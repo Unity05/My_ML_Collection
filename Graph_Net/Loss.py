@@ -69,7 +69,7 @@ class GraphLogLikelihood(nn.Module):
         Computes the log likelihood log(P(G|F)).
 
         :param input: A tensor representing the community membership table F of shape (#nodes, #communities).
-        :return: scalar.
+        :return: scalar tensor.
         """
 
         loss = torch.sum(torch.log(1 - torch.exp((-1) * torch.einsum('ij,ij->i',
