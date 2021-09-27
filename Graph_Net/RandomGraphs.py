@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import math
 import numpy as np
 import random as rnd
 
@@ -108,3 +109,43 @@ class CommunityAffiliationGraph(RandomGraphCreator):
         edge_probs = 1 - np.prod(edge_probs, axis=-1, where=(edge_probs != 0), initial=1.0)
 
         return edge_probs
+
+
+class SmallWorldModel(RandomGraphCreator):
+    """
+    Creator class for Small - World Model random graphs.
+    """
+
+    def __init__(self, n: int, p: float):
+        """
+        :param n: #nodes
+        :param p: probability for an edge in the regular network
+                  to be replaced by an edge leading to a random node.
+                  (Higher p means more randomness. Estimated 'optimal' range: 5.0e-3 < p < 1.0e-1.)
+        """
+
+        super(SmallWorldModel, self).__init__()
+
+        self.n = n
+        self.p = math.sqrt(p)
+
+    def graph_factorymethod(self) -> np.array:
+        """
+        Generates a random undirected small world model graph.
+        If p is well chosen, the random graph is an 'interpolation' between a regular network and a random network
+        and has a high clustering coefficient as well as a low diameter or average shortest path length.
+
+        :return: the random small world model graph (adjacency matrix).
+        """
+
+        regular_network = np.eye(N=self.n, M=self.n, k=1) \
+                          + np.eye(N=self.n, M=self.n, k=2) \
+                          + np.eye(N=self.n, M=self.n, k=-(self.n - 1)) \
+                          + np.eye(N=self.n, M=self.n, k=-(self.n - 2))
+        regular_network = regular_network + np.transpose(regular_network)
+        relink_p = np.random.rand(self.n, self.n)
+        for i in range(self.n):
+            swap_indices = relink_p[i] <= self.p
+            regular_network[i, swap_indices] = np.random.permutation(regular_network[i, swap_indices])
+
+        return regular_network
