@@ -35,6 +35,8 @@ class ERGraph(RandomGraphCreator):
         :param p: probability for an edge e
         """
 
+        super(ERGraph, self).__init__()
+
         self.n = n
         self.p = p
 
@@ -60,6 +62,8 @@ class DegreeGraph(RandomGraphCreator):
         """
         :param degree_sequence: degree for each node
         """
+
+        super(DegreeGraph, self).__init__()
 
         self.degree_sequence = degree_sequence
         self.n = len(degree_sequence)
@@ -92,7 +96,7 @@ class CommunityAffiliationGraph(RandomGraphCreator):
     Creator class for node community affiliation based random graphs.
     """
 
-    def graph_factorymethod(self, **kwargs):
+    def graph_factorymethod(self, **kwargs) -> np.array:
         """
         Generates a random undirected graph with specified communities.
 
