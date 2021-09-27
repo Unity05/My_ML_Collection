@@ -153,3 +153,57 @@ class SmallWorldModel(RandomGraphCreator):
             regular_network[i, swap_indices] = np.random.permutation(regular_network[i, swap_indices])
 
         return regular_network
+
+
+class KroneckerGraph(RandomGraphCreator):
+    """
+    Creator class for Kronecker random graphs.
+    Related paper: https://www.jmlr.org/papers/volume11/leskovec10a/leskovec10a.pdf
+    Implementation based on this slide: http://snap.stanford.edu/class/cs224w-2020/slides/14-traditional-generation.pdf#page=57
+    """
+
+    def __init__(self, n: int):
+        """
+        :param n: #nodes
+        """
+
+        super(KroneckerGraph, self).__init__()
+
+        self.n = n
+
+    def graph_factorymethod(self, **kwargs) -> np.array:
+        """
+        Generates a random directed Kronecker graph
+        by iteratively 'dropping' an edge into a graph's quadrants / sections.
+
+        :param kwargs: should contain:
+                                probability_matrix: (np.array) A probability matrix
+                                                    of shape (N x N) for the quadrants / sections.
+                                n_edges: (int) #edges.
+        :return: (np.array) the random directed Kronecker graph (adjacency matrix).
+        """
+
+        adjacency_matrix = np.zeros((self.n, self.n))
+
+        theta = kwargs['probability_matrix']
+        N = theta.shape[1]      # N^2 number of 'quadrants'
+        assert N**int(math.log(self.n, N)) == self.n, \
+            'n must be a power of N for the quadrants / sections to work (as of now).'
+        theta = theta / np.sum(theta)   # normalize probabilities
+        theta = theta.flatten()     # 1d - probability array
+
+        n_edges = kwargs['n_edges']
+
+        m = int(math.log(self.n, N))     # Generalizing from 2^2 quadrants to N^N sections.
+
+        for _ in range(n_edges):
+            x = 0
+            y = 0
+            for i in range(1, (m + 1)):
+                u, v = divmod(np.random.choice(a=theta.size, p=theta), N)
+                # Descend into the quadrant (u, v) at level i.
+                x += u * N**(m - i)
+                y += v * N**(m - i)
+            adjacency_matrix[x, y] = 1
+
+        return adjacency_matrix
