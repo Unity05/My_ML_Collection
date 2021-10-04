@@ -73,7 +73,9 @@ class GNNLayer(nn.Module):
         :return: New calculated embeddings.
         """
 
-        return self.activation_fn((torch.div(1.0, mask.sum(-1))) * torch.sum(self.message_layer(x, mask), dim=1))
+        return self.activation_fn(torch.einsum('i, ij->ij',
+                                               torch.div(1.0, mask.sum(-2)),
+                                               torch.sum(self.message_layer(x, mask), dim=1)))
 
 
 class LinearWithMask(nn.Module):
@@ -124,9 +126,9 @@ class LinearWithMask(nn.Module):
         :return: (N, *, *, H_out) where * means in GNN context #Nodes and H_out = out_features.
         """
 
-        mask.unsqueeze_(-1)
-        input = input.repeat(mask.size()[1], 1, 1) * mask  # dropout the masked data
-        output = input @ self.weight.t() + (self.bias * mask)  # dropout respective bias data
+        m = mask.unsqueeze(-1)
+        input = input.repeat(mask.size()[1], 1, 1) * m  # dropout the masked data
+        output = input @ self.weight.t() + (self.bias * m)  # dropout respective bias data
         return output
 
 
