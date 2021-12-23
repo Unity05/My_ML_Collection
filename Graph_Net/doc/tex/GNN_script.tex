@@ -59,7 +59,7 @@ Node v's new embedding is computed by aggregating its own message as well as all
 
 \subsection{Popular GNN Layers}
 
-\subsubsection{Graph Convolutional Networks (GCN)}
+\subsubsection{\href{https://arxiv.org/pdf/1609.02907.pdf}{Graph Convolutional Networks (GCN)}}
 \begin{itemize}
 	\item[] \textbf{Message Computation}\newline
 		Embeddings are passed through a linear layer (transformation with 		weight matrix). Normalized by node degrees.
@@ -68,7 +68,7 @@ Node v's new embedding is computed by aggregating its own message as well as all
 		\[h_v^{(l)} = \sigma\left(\sum_{u \in N(v) \cup \{v\}} \frac{1}{\sqrt{deg(u)} \cdot \sqrt{deg(v)}} \cdot m_u^{(l)}\right)\]
 \end{itemize}
 
-\subsubsection{Graph Attention Networks (GAT)}
+\subsubsection{\href{https://arxiv.org/pdf/1710.10903.pdf}{Graph Attention Networks (GAT)}}
 \begin{itemize}
 	\item[] \textbf{Message Computation}\newline
 		No difference to GCN.
@@ -80,4 +80,27 @@ Node v's new embedding is computed by aggregating its own message as well as all
 		\[\alpha_{vu} = \frac{exp(e_{vu})}{\sum_{k \in N(v)} exp(e_{vk})}\]
 		\[e_{vu} = a\left(W^{(l)}h_u^{(l-1)}, W^{(l)}h_v^{(l-1)}\right)\]
 \end{itemize}
+
+\subsubsection{\href{https://arxiv.org/pdf/1810.00826.pdf}{Graph Isomorphism Network (GIN)}}\label{GIN}
+We don't split up in Message Computation and Aggregation as MLP models both functions $\phi$ and $f$.
+\[h_v^{(l)} = MLP^{(l)}\left(\left(1 + \epsilon^{(l)}\right) \cdot h_v^{(l-1)} + \sum_{u \in N(v)} h_u^{(l-1)}\right)\]
+
+
+\subsection{Expressiveness of GNNs}
+To assess the expressiveness of a GNN we have to look at its \textbf{computational graph}. It is important to keep in mind that the computational graph can only distinguish different node features not node IDs. Therefore, they are identical to subtrees rooted at the respective nodes.\newline
+Hence, we want GNNs to \textbf{map subtrees injectively}. This means we need to retain information about neighborhood structure. As the same feature yields to the same message we achieve this by using \textbf{injectiv aggregation functions}.
+
+\subsubsection{Mean - Pool}
+Cannot distinguish different multi-sets with the same embedding proportion.
+
+\subsubsection{Max - Pool}
+Cannot distinguish different sets with the same embeddings.
+
+\subsubsection{Injective Multi-Set Function}
+Any multi-set function can be expressed as:
+\[\phi\left(\sum_{x \in X} f(x)\right)\]
+According to the \href{https://deeplearning.cs.cmu.edu/F21/document/readings/Hornik_Stinchcombe_White.pdf}{\textbf{universal approximation theorem}}, any function $\phi$ and $f$ can be modeled with an MLP. As MLPs can model compositions of functions, we end up with:
+\[MLP\left(\sum_{x \in X} x\right)\]
+Transferring this to the domain of GNNs it yields \textbf{GIN(\ref{GIN}) as the most expressive GNN}.
+
 \end{document}
