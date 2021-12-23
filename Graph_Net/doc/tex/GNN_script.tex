@@ -1,0 +1,81 @@
+\documentclass[parskip=full]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\hypersetup{
+pdftitle={xyz}
+}
+\usepackage{graphicx}
+\usepackage{csquotes}
+\usepackage[nonumberlist]{glossaries}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{scalerel,amssymb}
+\def\msquare{\mathord{\scalerel*{\Box}{gX}}}
+
+\title{GNN Script}
+\author{Unity05}
+
+\begin{document}
+
+\begin{titlepage}
+\maketitle
+\end{titlepage}
+
+\section{Message Passing Graph Neural Networks}
+
+\subsection{Introduction}
+The idea behind message passing GNNs is \textbf{k - hop neighborhood aggregation}.
+One single GNN layer can be looked at as one single hop.
+
+A GNN layer mainly consists of two parts: \textbf{Message Computation} and \textbf{Aggregation}.
+
+\subsubsection{Message Computation}
+Each node computes a message based on it's embedding in the previous layer.
+\[m_u^{(l)} = \phi^{(l)}\left(h_u^{(l-1)}\right)\]
+\begin{center}
+\begin{tabular}{l c l}
+	$m_u^{(l)}$ & \dots & message of node u in layer l \\
+	$\phi^{(l)}$ & \dots & message computation function of layer l \\
+	$h_u^{(l - 1)}$ & \dots & node u's embedding in layer l - 1
+\end{tabular}
+\end{center}
+
+\subsubsection{Aggregation}
+Node v's new embedding is computed by aggregating its own message as well as all of its neighbor node's messages.
+\[h_v^{(l)} = \sigma\left(\msquare^{(l)}\left(\{m_u^{(l)} \mid u \in N(v)\}, m_v^{(l)}\right)\right)\]
+\begin{center}
+\begin{tabular}{l c l}
+	$\sigma$ & \dots & nonlinear activation function \\
+	$h_v^{(l)}$ & \dots & node v's new embedding in layer l - 1 \\
+	$\msquare^{(l)}$ & \dots & aggregation function of layer l \\
+	$m_u^{(l)}$ & \dots & message of node u in layer l \\
+	$N(v)$ & \dots & neighborhood of node v
+\end{tabular}
+\end{center}
+
+\[3^x - (\sqrt{3})^{x+4} + 20 = 0\]
+\[<=> (\sqrt{3^x} - 4.5)^2 - \frac{1}{4} = 0\]
+\[<=> (\sqrt{3^x} - 4.5)^2 = \frac{1}{4}\]
+\[<=> \sqrt{3^x} - 4.5 = +-\sqrt{\frac{1}{4}}\]
+\[<=> \sqrt{3^x} = +-0.5 + 4.5\]
+\[	=> \sqrt{3^{x_0}} = 5\]
+\[	<=> 3^{x_0} = 5^2\]
+\[	<=> x_0 = \log_3{5^2}\]
+\[	<=> x_0 = 2 * \log_3{5}\]
+
+\[	=> \sqrt{3^{x_1}} = 4\]
+\[	<=> 3^{x_1} = 4^2\]
+\[	<=> x_1 = \log_3{4^2}\]
+\[	<=> x_1 = 2 * \log_3{4}\]
+
+\[=> s = 2 * \log_3{5} + 2 * \log_3{4}\]
+\[<=> s = 2 * (\log_3{5} + \log_3{4})\]
+\[<=> s = 2 * \log_3{5*4}\]
+\[<=> s = 2 * \log_3(20)\]
+%\[<=> \sqrt{3^x} = \sqrt{\fraq{1}{4}} + 4.5\]
+%\[<=> 3^x = (\sqrt{\fraq{1}{4}} + 4.5)^2\]
+%\[<=> x = \log_3((\sqrt{\fraq{1}{4}} + 4.5)^2)\]
+
+\end{document}
