@@ -103,4 +103,48 @@ According to the \href{https://deeplearning.cs.cmu.edu/F21/document/readings/Hor
 \[MLP\left(\sum_{x \in X} x\right)\]
 Transferring this to the domain of GNNs it yields \textbf{GIN(\ref{GIN}) as the most expressive GNN}.
 
+
+\section{Graph Generation}
+
+\subsection{Network Properties}
+
+\subsubsection{Degree Distribution}
+The degree distribution \textbf{$P(k)$} is the probability that a random node has degree k.\newline
+Computation:
+\[N_k = \text{\#nodes with degree k}\]
+\[P(k) = \frac{N_k}{N}\]
+
+\subsubsection{Clustering Coefficient}
+How connected the neighborhood of node $i$ with degree $k_i$ is. It basically measures, how many edges out of all possible edges exist.
+\[C_i = \frac{2e_i}{k_i\left(k_i-1\right)}\]
+\[C = \frac{1}{N} \sum_{i}^{N} C_i\]
+\begin{center}
+\begin{tabular}{l c l}
+	$C_i$ & \dots & clustering coefficient \\
+	$e_i$ & \dots & total number of edges in neighborhood of node $i$
+\end{tabular}
+\end{center}
+
+\subsubsection{Connectivity}
+Connectivity is the size of the \textbf{largest connected component}.
+This largest component is called the \textbf{giant component}.
+Can be found by i.e. BFS.
+
+\subsubsection{Path Length}
+\begin{itemize}
+	\item[] \textbf{Diameter}\newline
+		\[max_{u,v}d(u,v)\]
+		\begin{center}
+			$d(u,v)$ \dots length of shortest path between u and v
+		\end{center}
+	\item[] \textbf{Average Path Length}\newline
+		\[\overline{h} = \frac{1}{2E_{max}}\sum_{i,j \neq i} h_{ij}\]
+		\begin{center}
+		\begin{tabular}{l c l}
+			$E_{max}$ & \dots & max number of edges $\left(\frac{n(n-1)}{2}\right)$ \\
+			$h_{ij}$ & \dots & $d(i,j)$
+		\end{tabular}
+		\end{center}
+\end{itemize}
+
 \end{document}
