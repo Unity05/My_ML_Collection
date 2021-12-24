@@ -147,4 +147,28 @@ Can be found by i.e. BFS.
 		\end{center}
 \end{itemize}
 
+\subsubsection{Expansion}
+Expansion $\alpha$ is defined as
+\[\alpha = \min_{S \subseteq V}\frac{\text{\#edges leaving S}}{min(\vert S \vert, \vert V \setminus S \vert)}\]
+and can be interpreted as the minimum average number of edges that ties a node $u$ of set $S$ to the set $V \setminus S$. This corresponds to a kind of \textbf{robustness of the graph}.
+
+\subsection{Erdös-Renyi Random Graphs}
+An Erdös-Renyi Random Graph \textbf{$G_{np}$} is an undirected graph with \textbf{n nodes}. Each \textbf{edge (u,v)} has probability \textbf{$p$} to exist.
+
+\subsubsection{Degree Distribution}
+The degree distribution \textbf{$P(k)$} for each node is \textbf{binomial}. We use $n-1$ instead of $n$ as we don't allow self loops.
+\[P(k) = \binom{n-1}{k}p^k(1-p)^{n-1-k}\]
+
+\subsubsection{Clustering Coefficient}
+As the \# edge distribution is binomial:
+\[\mathbf{E}[e_i] = p \cdot \frac{k_i(k_i - 1)}{2}\]
+\[\Longrightarrow \mathbf{E}[C_i] = \frac{2\mathbf{E}[e_i]}{k_i(k_i-1)} = \frac{p \cdot k_i(k_i-1)}{k_i(k_i-1} = p = \frac{\overline{k}}{n-1} \approx \frac{\overline{k}}{n}\]
+
+\subsection{Small-World Model}
+Small world models try to achieve \textbf{low diameter} while retaining a \textbf{high clustering coefficient}.
+\begin{itemize}
+	\item start with regular grid $\Rightarrow$ high clustering coefficient
+	\item change target of some edges randomly $\Rightarrow$ low diameter
+\end{itemize}
+
 \end{document}
