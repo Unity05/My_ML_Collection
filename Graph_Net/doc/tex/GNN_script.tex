@@ -10,6 +10,8 @@ pdftitle={xyz}
 \usepackage{csquotes}
 \usepackage[nonumberlist]{glossaries}
 \usepackage{enumitem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage{amsmath}
 \usepackage{scalerel,amssymb}
 \def\msquare{\mathord{\scalerel*{\Box}{gX}}}
@@ -183,5 +185,25 @@ a_{n,1}B & \cdots & a_{n,m}B
 \end{pmatrix}\]
 For \textbf{recursive graph structurs} we apply the Kronecker Product \textbf{iteratively}. Different matrices $K_1$, $K_1^{'}$, $\ldots$ are possible.
 \[K_1^{m} = K_m = K_{m-1} \otimes K_1\]
+
+\subsubsection{Stochastic Kronecker Graph Edge}
+Idea: use \textbf{probability matrix} and compute the Kronecker Product.
+
+Problem: $n^2$ probabilities.
+
+Solution: Select $m$ edges randomly based on the probability matrix by \textbf{iteratively sampling a pair} column/row $(u,v)$.\newline
+When going $1 \leqslant i \leqslant q$ layers deep, the graph has $n = 2^q$ nodes and one can formalize the algorithm as:
+\begin{algorithm}
+\caption{Generating Stochastic Kronecker Graphs}
+\begin{algorithmic}
+	\State $\Theta$ \Comment{probability matrix}
+	\State $x = 0, y = 0$ \Comment{edge location}
+	\For{$i \gets 1$ to $q$}
+		\State pick random $(u,v)$ with probability $\Theta_{uv}$
+		\State $x \gets x + u \cdot 2^{q-i}$
+		\State $y \gets y + v \cdot 2^{q-1}$
+	\EndFor
+\end{algorithmic}
+\end{algorithm}
 
 \end{document}
