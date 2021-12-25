@@ -171,4 +171,17 @@ Small world models try to achieve \textbf{low diameter} while retaining a \textb
 	\item change target of some edges randomly $\Rightarrow$ low diameter
 \end{itemize}
 
+\subsection{Kronecker Graphs}
+
+\subsubsection{Kronecker Product}
+Let A and B be matrices.
+\[C = A \otimes B = 
+\begin{pmatrix}
+a_{1,1}B & \cdots & a_{1,m}B \\
+\vdots & \vdots & \vdots \\
+a_{n,1}B & \cdots & a_{n,m}B
+\end{pmatrix}\]
+For \textbf{recursive graph structurs} we apply the Kronecker Product \textbf{iteratively}. Different matrices $K_1$, $K_1^{'}$, $\ldots$ are possible.
+\[K_1^{m} = K_m = K_{m-1} \otimes K_1\]
+
 \end{document}
