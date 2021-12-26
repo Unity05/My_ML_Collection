@@ -7,17 +7,31 @@
 pdftitle={xyz}
 }
 \usepackage{graphicx}
+\graphicspath{{./images/}}
 \usepackage{csquotes}
 \usepackage[nonumberlist]{glossaries}
 \usepackage{enumitem}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{amsmath}
+\usepackage{cleveref}
 \usepackage{scalerel,amssymb}
 \def\msquare{\mathord{\scalerel*{\Box}{gX}}}
+\DeclareMathOperator*{\argmax}{arg\, max}
+
+%\usepackage[
+%sortcites,
+%backend=biber,
+%style=alphabetic, %numeric-comp, %style=numeric alphabetic
+%defernumbers=true, %bibstyle=authortitle
+%bibstyle=alphabetic,
+%maxbibnames=999, maxcitenames=2
+%]{biblatex}
+\usepackage{biblatex}
+\addbibresource{references.bib}
 
 \title{Graph Neural Networks}
-\subtitle{Script based on CS224W}
+\subtitle{Script based on CS224W: Winter 2021}
 \author{Unity05}
 
 \begin{document}
@@ -205,5 +219,36 @@ When going $1 \leqslant i \leqslant q$ layers deep, the graph has $n = 2^q$ node
 	\EndFor
 \end{algorithmic}
 \end{algorithm}
+
+\subsection{GraphRNN}
+We want $p_{model}(x \vert \theta)$ to model the data distribution $p_{data}(x)$. $\rightarrow$ \textbf{Maximum Likelihood}
+\[\theta^* = \argmax_{\theta} \mathbf{E}_{x \thicksim p_{data}} \log p_{model}(x \vert \theta)\]
+\textbf{GraphRNN} consists of two RNNs
+\begin{itemize}
+	\item Node - Level RNN
+	\item Edge - Level RNN
+\end{itemize}
+which are connected the way as illustrated in \cref{fig:GraphRNN0}.
+We look at each edge level RNN Cell's output as \textbf{a probability to sample from}.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.75\textwidth]{GraphRNN_Schema}
+	\caption{GraphRNN Schema \cite{graph-rnn}}
+	\label{fig:GraphRNN0}
+\end{figure}
+
+It is worth noting that the graph state is updated as:
+\[h_i = f_{trans}(h_{i-1},S_{i-1}^{\pi})\]
+\begin{center}
+\begin{tabular}{l c l}
+	$f_{trans}$ & \dots & transition module (NN) \\
+	$S_{i-1}^{\pi}$ & \dots & last entry in adjacency vector of node $\pi (v_{i-1})$
+\end{tabular}
+\end{center}
+Improvement: Only train on $BFS(G, \pi)$.\newline 
+$\rightarrow$ less BFS orderings than node permutations\newline
+$\rightarrow$ edge - level RNN only considers edges to the nodes in the previous level of BFS
+
+\printbibliography
 
 \end{document}
