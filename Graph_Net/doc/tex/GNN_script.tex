@@ -27,11 +27,12 @@ pdftitle={xyz}
 %bibstyle=alphabetic,
 %maxbibnames=999, maxcitenames=2
 %]{biblatex}
+%\usepackage{natbib}
 \usepackage{biblatex}
 \addbibresource{references.bib}
 
 \title{Graph Neural Networks}
-\subtitle{Script based on CS224W: Winter 2021}
+\subtitle{Script based on CS224W: Winter 2021 \cite{cs224w-notes}}
 \author{Unity05}
 
 \begin{document}
@@ -79,7 +80,7 @@ Node v's new embedding is computed by aggregating its own message as well as all
 
 \subsection{Popular GNN Layers}
 
-\subsubsection{\href{https://arxiv.org/pdf/1609.02907.pdf}{Graph Convolutional Networks (GCN)}}
+\subsubsection{Graph Convolutional Networks (GCN) \cite{kipf2017semisupervised}}
 \begin{itemize}
 	\item[] \textbf{Message Computation}\newline
 		Embeddings are passed through a linear layer (transformation with 		weight matrix). Normalized by node degrees.
@@ -88,7 +89,7 @@ Node v's new embedding is computed by aggregating its own message as well as all
 		\[h_v^{(l)} = \sigma\left(\sum_{u \in N(v) \cup \{v\}} \frac{1}{\sqrt{deg(u)} \cdot \sqrt{deg(v)}} \cdot m_u^{(l)}\right)\]
 \end{itemize}
 
-\subsubsection{\href{https://arxiv.org/pdf/1710.10903.pdf}{Graph Attention Networks (GAT)}}
+\subsubsection{Graph Attention Networks (GAT) \cite{veličković2018graph}}
 \begin{itemize}
 	\item[] \textbf{Message Computation}\newline
 		No difference to GCN.
@@ -101,7 +102,7 @@ Node v's new embedding is computed by aggregating its own message as well as all
 		\[e_{vu} = a\left(W^{(l)}h_u^{(l-1)}, W^{(l)}h_v^{(l-1)}\right)\]
 \end{itemize}
 
-\subsubsection{\href{https://arxiv.org/pdf/1810.00826.pdf}{Graph Isomorphism Network (GIN)}}\label{GIN}
+\subsubsection{Graph Isomorphism Network (GIN) \cite{xu2019powerful}}\label{GIN}
 We don't split up in Message Computation and Aggregation as MLP models both functions $\phi$ and $f$.
 \[h_v^{(l)} = MLP^{(l)}\left(\left(1 + \epsilon^{(l)}\right) \cdot h_v^{(l-1)} + \sum_{u \in N(v)} h_u^{(l-1)}\right)\]
 
@@ -265,7 +266,7 @@ When going $1 \leqslant i \leqslant q$ layers deep, the graph has $n = 2^q$ node
 \end{algorithmic}
 \end{algorithm}
 
-\subsection{GraphRNN}
+\subsection{GraphRNN \cite{you2018graphrnn}}
 We want $p_{model}(x \vert \theta)$ to model the data distribution $p_{data}(x)$. $\rightarrow$ \textbf{Maximum Likelihood}
 \[\theta^* = \argmax_{\theta} \mathbf{E}_{x \thicksim p_{data}} \log p_{model}(x \vert \theta)\]
 \textbf{GraphRNN} consists of two RNNs
@@ -278,7 +279,7 @@ We look at each edge level RNN Cell's output as \textbf{a probability to sample 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.75\textwidth]{GraphRNN_Schema}
-	\caption{GraphRNN Schema \cite{graph-rnn}}
+	\caption{GraphRNN Schema \cite{you2018graphrnn}}
 	\label{fig:GraphRNN0}
 \end{figure}
 
