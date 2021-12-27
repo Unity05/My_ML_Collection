@@ -1,5 +1,6 @@
 \documentclass[parskip=full]{scrartcl}
 \usepackage[utf8]{inputenc}
+%\usepackage{glossaries}
 \usepackage[T1]{fontenc}
 \usepackage[english]{babel}
 \usepackage{hyperref}
@@ -30,6 +31,22 @@ pdftitle={xyz}
 %\usepackage{natbib}
 \usepackage{biblatex}
 \addbibresource{references.bib}
+
+
+\makenoidxglossaries
+
+\newglossaryentry{Fixed Split}
+{
+	name={Fixed Split},
+	description={We split the dataset into Training Set, Validation Set and Test Set}
+}
+
+\newglossaryentry{Random Split}
+{
+	name={Random Split},
+	description={We randomly split the dataset into Training Set, Validation Set and Test Set. We then take the mean performance over multiple random seeds}
+}
+
 
 \title{Graph Neural Networks}
 \subtitle{Script based on CS224W: Winter 2021 \cite{cs224w-notes}}
@@ -120,20 +137,50 @@ Cannot distinguish different sets with the same embeddings.
 \subsubsection{Injective Multi-Set Function}
 Any multi-set function can be expressed as:
 \[\phi\left(\sum_{x \in X} f(x)\right)\]
-According to the \href{https://deeplearning.cs.cmu.edu/F21/document/readings/Hornik_Stinchcombe_White.pdf}{\textbf{universal approximation theorem}}, any function $\phi$ and $f$ can be modeled with an MLP. As MLPs can model compositions of functions, we end up with:
+According to the \textbf{universal approximation theorem} \cite{HORNIK1989359}, any function $\phi$ and $f$ can be modeled with an MLP. As MLPs can model compositions of functions, we end up with:
 \[MLP\left(\sum_{x \in X} x\right)\]
 Transferring this to the domain of GNNs it yields \textbf{GIN(\ref{GIN}) as the most expressive GNN}.
 
 
-\section{GNN Training}
+\section{GNN Training Pipeline}
 
-\subsection{General Information}
+\subsection{Preprocessing}
+
+\subsubsection{Graph Augmentation}
+\begin{itemize}
+	\item \textbf{Lack Of Features}
+		\vspace{-9pt}
+		\begin{itemize}[noitemsep]
+			\item Constant node features (low expressiveness, high generalization to new nodes).
+			\item One - hot node features (high expressiveness, no generalization to new nodes).
+			\item Almost any node property.
+		\end{itemize}
+	\item \textbf{Sparse/Dense/Large Graph Structure}
+		\vspace{-9pt}
+		\begin{itemize}[noitemsep]
+			\item Sparse: add virtual edges / node
+			\item Dense: sample neighbors
+			\item Large: sample subgraphs
+		\end{itemize}
+\end{itemize}
+
+\subsubsection{Dataset Split}
+We distinguish between \textbf{\gls{Fixed Split}} and \textbf{\gls{Random Split}}.
+The problem is that the \textbf{components} of a graph are \textbf{not independent} from one another.
+\begin{itemize}
+	\item[] \textbf{Transductive Setting} \newline
+		The model can observe the \textbf{whole graph} but we \textbf{split the labels} we train / validate / test on. $\rightarrow$ Not applicable for graph - level predictions.
+	\item[] \textbf{Inductive Setting} \newline
+		We \textbf{break} the graph into \textbf{independent graphs} we train / validate / test on.
+\end{itemize}
+
+\subsection{Training}
 
 \subsubsection{Training Settings}
-\begin{itemize}
+\begin{itemize}[noitemsep]
 	\item Supervised Learning vs. Unsupervised Learning
 	\item What do we want to predict?
-	\begin{itemize}
+	\begin{itemize}[noitemsep]
 		\item Node - Level
 		\item Edge - Level
 		\item Graph - Level
@@ -233,7 +280,7 @@ Small world models try to achieve \textbf{low diameter} while retaining a \textb
 	\item change target of some edges randomly $\Rightarrow$ low diameter
 \end{itemize}
 
-\subsection{Kronecker Graphs}
+\subsection{Kronecker Graphs \cite{leskovec2009kronecker}}
 
 \subsubsection{Kronecker Product}
 Let A and B be matrices.
@@ -271,8 +318,8 @@ We want $p_{model}(x \vert \theta)$ to model the data distribution $p_{data}(x)$
 \[\theta^* = \argmax_{\theta} \mathbf{E}_{x \thicksim p_{data}} \log p_{model}(x \vert \theta)\]
 \textbf{GraphRNN} consists of two RNNs
 \begin{itemize}
-	\item Node - Level RNN
-	\item Edge - Level RNN
+	\item[] Node - Level RNN
+	\item[] Edge - Level RNN
 \end{itemize}
 which are connected the way as illustrated in \cref{fig:GraphRNN0}.
 We look at each edge level RNN Cell's output as \textbf{a probability to sample from}.
@@ -294,6 +341,9 @@ It is worth noting that the graph state is updated as:
 Improvement: Only train on $BFS(G, \pi)$.\newline 
 $\rightarrow$ less BFS orderings than node permutations\newline
 $\rightarrow$ edge - level RNN only considers edges to the nodes in the previous level of BFS
+
+\newpage
+\printnoidxglossary
 
 \newpage
 \printbibliography
