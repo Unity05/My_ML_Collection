@@ -40,6 +40,10 @@ pdftitle={xyz}
 \maketitle
 \end{titlepage}
 
+\newpage
+\tableofcontents
+\newpage
+
 \section{Message Passing Graph Neural Networks}
 
 \subsection{Introduction}
@@ -119,6 +123,47 @@ According to the \href{https://deeplearning.cs.cmu.edu/F21/document/readings/Hor
 \[MLP\left(\sum_{x \in X} x\right)\]
 Transferring this to the domain of GNNs it yields \textbf{GIN(\ref{GIN}) as the most expressive GNN}.
 
+
+\section{GNN Training}
+
+\subsection{General Information}
+
+\subsubsection{Training Settings}
+\begin{itemize}
+	\item Supervised Learning vs. Unsupervised Learning
+	\item What do we want to predict?
+	\begin{itemize}
+		\item Node - Level
+		\item Edge - Level
+		\item Graph - Level
+	\end{itemize}
+\end{itemize}
+
+To make a \textbf{k-way prediction} $\hat{y}$ on any level, we need \textbf{prediction heads}. K-way prediction means classification with k classes or regression with k targets.
+
+\subsubsection{Node - Level}
+After running the GNN, we have embedding $h_v \in \mathbb{R}^d$ for node v. For node - level prediction we can therefore simply use a matrix transformation:
+\[\hat{y}_v = Head_{node}(h_v) = Wh_v\]
+\[W \in \mathbb{R}^{k \times d}\]
+
+\subsubsection{Edge - Level}
+For edge - level predictions, the prediction head takes \textbf{two embeddings} as input. \newline
+Examples:
+\begin{itemize}
+	\item $\hat{y}_{uv} = Linear(Concat(h_u, h_v))$ \newline
+		not commutative $\rightarrow$ problematic for undirected graphs
+	\item 1-way prediction: $\hat{y}_{uv} = h_u \bullet h_v$ \newline
+		k-way prediction ($\approx$ Multi-Head Attention):
+		\[\hat{y}_{uv}^{(i)} = h_u^TW^{(i)}h_v\]
+		\[\hat{y}_{uv} = Concat(\{\hat{y}_{uv}^{(i)} | 1 \leqslant i \leqslant k\})\]
+\end{itemize}
+
+\subsubsection{Graph - Level}
+For graph - level predictions, the prediction head takes \textbf{all embeddings} as input. It therefore basically is very similar to an \textbf{aggregation function}. \newline
+\begin{itemize}
+	\item \textbf{Global Pooling}: similar to GNN aggregation functions (like Mean, Max and Sum) $\rightarrow$ same problems occur.
+	\item \textbf{Hierarchical Pooling}: aggregate embeddings inside \textbf{clusters} of the graph and repeat until the result is a single embedding.
+\end{itemize}
 
 \section{Graph Generation}
 
@@ -249,6 +294,7 @@ Improvement: Only train on $BFS(G, \pi)$.\newline
 $\rightarrow$ less BFS orderings than node permutations\newline
 $\rightarrow$ edge - level RNN only considers edges to the nodes in the previous level of BFS
 
+\newpage
 \printbibliography
 
 \end{document}
