@@ -213,6 +213,46 @@ For graph - level predictions, the prediction head takes \textbf{all embeddings}
 	\item \textbf{Hierarchical Pooling}: aggregate embeddings inside \textbf{clusters} of the graph and repeat until the result is a single embedding.
 \end{itemize}
 
+
+\section{Knowledge Graphs}
+
+\subsection{Heterogeneous Graphs}
+Is knowledge graph $\rightarrow$ is heterogeneous graph.
+Heterogeneous graph G:
+\[G = (V, E, R, T)\]
+\begin{center}
+\begin{tabular}{l c l}
+	$v_i \in V$ & \dots & node \\
+	$(v_i, r, v_j) \in E$ & \dots & edges \\
+	$T(v_i)$ & \dots & node type \\
+	$r \in R$ & \dots & relation type
+\end{tabular}
+\end{center}
+
+\subsection{Relational GCN (RGCN) \cite{schlichtkrull2017modeling}}
+
+\begin{itemize}
+	\item[] \textbf{Message Computation}\newline
+		\[m_{u,r}^{(l)} = \left(W_r^{(l)} \cdot h_u^{(l-1)}\right)\]
+	\item[] \textbf{Aggregation}\newline
+		\[h_v^{(l)} = \sigma \left(W_{root}^{(l)} \cdot h_v^{(l-1)} + \sum_{r \in R} \sum_{i \in N_r(v)} \frac{1}{\vert N_r(v) \vert} \cdot m_u^{(l)} \right)\]
+\end{itemize}
+Problem: \# weight matrices in layer l $= \vert R \vert \Rightarrow$ overfitting
+
+\subsubsection{Block Diagonal Matrices}
+%TODO
+
+\subsubsection{Basis Learning}
+View matrix $W_r$ as transformation matrix for \textbf{change of basis}. $W_r$ is a \textbf{learnable linear combination} of multiple transformation matrices.
+\[W_r = \sum_{b=1}^{B} a_{rb} \cdot V_b\]
+\begin{center}
+\begin{tabular}{l c l}
+	$V_b$ & \dots & transformation matrix \\
+	$a_{rb}$ & \dots & learnable importance weight of $V_b$
+\end{tabular}
+\end{center}
+
+
 \section{Graph Generation}
 
 \subsection{Network Properties}
