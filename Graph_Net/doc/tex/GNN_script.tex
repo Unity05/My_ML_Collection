@@ -252,6 +252,30 @@ View matrix $W_r$ as transformation matrix for \textbf{change of basis}. $W_r$ i
 \end{tabular}
 \end{center}
 
+\subsection{Modeling Knowledge Graphs}
+Entity vectors and relation vectors as embeddings in shallow encoding.
+
+\subsubsection{TransE \cite{Bordes2013TranslatingEF}}
+Edge triple $(h,r,t)$ with $h,r,t \in \mathbb{R}^d$.
+\[f_r(h,t) = - \vert \vert h + r - t \vert \vert\]
+
+\subsubsection{TransR \cite{Lin2015LearningEA}}
+Project entitiy vectors from \textbf{entity space $\mathbb{R}^d$} to \textbf{relation space $\mathbb{R}^k$} with the \textbf{projection matrix $M_r \in \mathbb{R}^{k \times d}$}.
+\[f_r(h,z) = - \vert \vert h_e + r - t_e \vert \vert\]
+\[h_r = M_rh\]
+\[t_r = M_rt\]
+
+\subsubsection{DistMult \cite{yang2015embedding}}
+\[f_r(h,t) = <r,h,z> = \vec{h} \circ \vec{r} \cdot \vec{t}\]
+
+\subsubsection{ComplEx \cite{trouillon2016complex}}
+DistMult in complex space.
+\[f_r(h,t) = Re(<r,h,\overline{t}>)\]
+\[r,h,t \in \mathbb{C}^k\]
+
+\subsubsection{Comparison}
+%TODO
+
 
 \section{Graph Generation}
 
